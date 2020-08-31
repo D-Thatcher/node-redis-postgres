@@ -1,0 +1,11 @@
+DB_USER=postgres
+DB_PASSWORD=password
+DB_HOST=localhost
+DB_PORT=5432
+DB_DATABASE=postgres
+SESSION_SECRET=523ea32asfd#@324ewfdsA
+REDIS_HOST=localhost
+REDIS_PORT=6379
+NODE_ENV=development
+DOMAIN=https://www.ex4123432432ample.com
+APP_PORT=3090

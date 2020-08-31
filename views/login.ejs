@@ -1,0 +1,18 @@
+<h1>Login</h1>
+<form method="post" action="/login">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <p>
+        <label>Email:</label>
+        <input type="email" name="email" required>
+    </p>
+    <p>
+        <label>Password:</label>
+        <input type="password" name="password" required>
+    </p>
+    <p>
+        need an account? <a href='/signup'>Register Now</a>
+    </p>
+    <p>
+        <input type="submit" value="Login">
+    </p>
+</form>
