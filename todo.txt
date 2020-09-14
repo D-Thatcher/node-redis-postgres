@@ -1,0 +1,7 @@
+1. Replace ejs with an SSR react app
+2. Add an option for JWT AWS Cognito instead of session cookies
+3. Add testing + coverage
+4. Add CI/CD
+5. Update README.md
+
+
