@@ -1,19 +1,31 @@
-FROM node:12
+# Base on offical Node.js Alpine image
+FROM node:alpine
 
-# Create app directory
-WORKDIR /usr/src/app
+# Set working directory
+WORKDIR /usr/app
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+# Install PM2 globally
+RUN npm install --global pm2
 
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
+# Copy package.json and package-lock.json before other files
+# Utilise Docker cache to save re-installing dependencies if unchanged
+COPY ./package*.json ./
 
-# Bundle app source
-COPY . .
+# Install dependencies
+RUN npm install --production
 
-EXPOSE 8080
-CMD [ "node", "index.js" ]
+# Copy all files
+COPY ./ ./
+
+# Build app
+RUN npm run build
+
+# Expose the listening port
+EXPOSE 3000
+
+# Run container as non-root (unprivileged) user
+# The node user is provided in the Node.js Alpine base image
+USER node
+
+# Run npm start script with PM2 when container starts
+CMD [ "pm2-runtime", "npm", "--", "start" ]

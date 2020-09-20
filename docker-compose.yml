@@ -1,0 +1,33 @@
+version: '3'
+services:
+
+  nextjs:
+    build: ./
+    depends_on:
+      - postgres
+      - redis
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - nextjs
+      - postgres
+      - redis
+
+  postgres:
+    container_name: 'postgres'
+    image: 'postgres'
+    environment:
+      POSTGRES_PASSWORD: 'postgres'
+    ports:
+      - 5432:5432
+    volumes:
+      - './init.sql:/docker-entrypoint-initdb.d/init.sql'
+
+  redis:
+    container_name: 'redis'
+    image: 'redis'
+    ports:
+      - 6379:6379

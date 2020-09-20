@@ -19,7 +19,9 @@ function clientErrorHandler (err, req, res, next) {
 function errorHandler (err, req, res, next) {
     res.status(500);
     const e = isProduction? "" : err;
-    res.render('404', { error: e.stack})
+    // res.render('404', { error: e.stack})
+    response.status(200).json({ error404: e.stack})
+
 }
 
 module.exports={

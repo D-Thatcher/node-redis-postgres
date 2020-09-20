@@ -4,7 +4,7 @@ const saltRounds = 2;
 const {pool} = require('./config');
 
 
-const getUsers = (request, response) => {
+const getUsers = (request, response, next) => {
   pool.query('SELECT * FROM users ORDER BY id ASC', (error, results) => {
     if (error) {
       throw error
@@ -27,27 +27,27 @@ const getUserById = (request, response) => {
 
 
 const createUser= async (req, res, next) => {
+  console.log('CREATE USER',req.body)
   try {
+
     try{
 
       const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+      console.log('hashedPassword',hashedPassword)
 
-      const qres = await pool.query('INSERT INTO users (email, password) VALUES ($1, $2)', [req.body.email, hashedPassword]);
+      const qres = await pool.query('INSERT INTO users (email_or_pn, first_name, last_name, password) VALUES ($1, $2, $3, $4)',
+          [req.body.email_or_pn, req.body.firstName, req.body.lastName, hashedPassword]);
       console.log('signup query ',qres)
     }
     catch (e) {
       console.log('ERROR with query',e);
-      res.redirect('/login');
+      res.redirect('/signin');
     }
-    //Here I'm authenticating this users if
-    //users exists and its pasword is correct.
-    //If user verified we'll create a session
-    //for this user by stroing it's information
-    req.session.user = { email: req.body.email};
+    req.session.user = { email_or_pn: req.body.email_or_pn, first_name: req.body.firstName, last_name: req.body.lastName};
 
     console.log('session CREATED');
     res.status(201);
-    res.redirect('/requiresAuth');
+    res.redirect('/dashboard');
   }catch(e) {
     console.log('ERROR123',e);
     next(e);
@@ -57,19 +57,24 @@ const createUser= async (req, res, next) => {
 
 
 const verifyUser= async (req, res, next) => {
+  console.log(' INSIDE verifyUser')
+
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
     try{
-      const qres = await pool.query('SELECT FROM users WHERE email=$1 AND password=$2', [req.body.email, hashedPassword]);
+      const qres = await pool.query('SELECT FROM users WHERE email_or_pn=$1 AND password=$2', [req.body.email, hashedPassword]);
       console.log('login query ',qres)
     }
     catch (e) {
       console.log('ERROR with query',e);
       res.redirect('/signup');
     }
-    req.session.user = { email: req.body.email};
+    console.log('req.session.user BEFORE',req.session.user)
+    req.session.user = { email_or_pn: req.body.email_or_pn};
+    console.log('req.session.user AFTER',req.session.user)
 
-    res.redirect('/requiresAuth');
+
+    res.redirect('/dashboard');
   }catch(e) {
     console.log('ERROR123',e);
     next(e);
