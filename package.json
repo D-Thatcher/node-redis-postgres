@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node index.js",
     "build": "next build",
-    "start": "cross-env NODE_ENV=production node index.js",
+    "start": "cross-env NODE_ENV=production node --trace-warnings index.js",
     "startNext": "next start"
   },
   "dependencies": {
@@ -35,9 +35,7 @@
     "@material-ui/icons": "^4.9.1",
     "clsx": "latest",
     "prop-types": "latest",
-    "recharts": "^1.8.5"
-  },
-  "devDependencies": {
+    "recharts": "^1.8.5",
     "dotenv": "^8.2.0"
   }
 }

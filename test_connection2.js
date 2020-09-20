@@ -1,7 +1,11 @@
 const assert = require('assert').strict;
-const {pool} = require('../../config');
+const {pool} = require('./config');
 
 function connString(){
+    console.log('pool',pool);
+    console.log('pool.options',pool.options);
+    console.log('pool.options.connectionString',pool.options.connectionString);
+    console.log('!pool.options.connectionString.includes("undefined")',!pool.options.connectionString.includes("undefined"));
     assert(pool && pool.options && pool.options.connectionString && (!pool.options.connectionString.includes("undefined")))
 }
 async function testConnect() {

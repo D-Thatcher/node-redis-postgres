@@ -20,7 +20,7 @@ function errorHandler (err, req, res, next) {
     res.status(500);
     const e = isProduction? "" : err;
     // res.render('404', { error: e.stack})
-    response.status(200).json({ error404: e.stack})
+    res.status(200).json({ error404: e.stack})
 
 }
 

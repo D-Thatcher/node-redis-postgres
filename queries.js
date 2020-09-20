@@ -4,13 +4,31 @@ const saltRounds = 2;
 const {pool} = require('./config');
 
 
-const getUsers = (request, response, next) => {
-  pool.query('SELECT * FROM users ORDER BY id ASC', (error, results) => {
-    if (error) {
-      throw error
-    }
-    response.status(200).json(results.rows)
-  })
+const getUsers = async (request, response, next) => {
+  // pool.query('SELECT * FROM users ORDER BY id ASC', (error, results) => {
+  //   if (error) {
+  //     throw error
+  //   }
+  //   response.status(200).json(results.rows)
+  // });
+  const results = await pool.query('SELECT * FROM users ORDER BY id ASC');
+  response.status(200).json(results.rows)
+
+};
+
+const dbTest = (request, response, next) => {
+  const {main} = require("./test_connection2")
+  main()
+      .then (() => {
+        console.error('Done');
+        response.status(200).json({nothing:true})
+      })
+      .catch((err) => {
+        console.error('Error: %s', err);
+        console.error('Error: %s', err.stack);
+        response.status(200).json({nothing:false})
+      });
+
 };
 
 const getUserById = (request, response) => {
@@ -28,6 +46,8 @@ const getUserById = (request, response) => {
 
 const createUser= async (req, res, next) => {
   console.log('CREATE USER',req.body)
+  console.log(' INSIDE createUser',req.body.email_or_pn,req.body.password)
+
   try {
 
     try{
@@ -57,28 +77,49 @@ const createUser= async (req, res, next) => {
 
 
 const verifyUser= async (req, res, next) => {
-  console.log(' INSIDE verifyUser')
+  console.log(' INSIDE verifyUser',req.body.email_or_pn,req.body.password)
 
   try {
-    const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+
+
+
     try{
-      const qres = await pool.query('SELECT FROM users WHERE email_or_pn=$1 AND password=$2', [req.body.email, hashedPassword]);
+      const qres = await pool.query('SELECT * FROM users WHERE email_or_pn=$1', [req.body.email_or_pn]);
+      console.log('verifyUser qres',qres)
+      if (qres && qres.rows){
+        if (qres.rows.length === 1){
+          const user_with_email_or_pn = qres.rows[0];
+          // Do the passwords match?
+          console.log('(req.body.password, user_with_email_or_pn.password)',req.body, user_with_email_or_pn)
+          const match = await bcrypt.compare(req.body.password, user_with_email_or_pn.password);
+          console.log('They matched',match);
+          if(match){
+            console.log('req.session.user BEFORE',req.session.user)
+            req.session.user = { email_or_pn: req.body.email_or_pn, first_name: user_with_email_or_pn.first_name,};
+            console.log('req.session.user AFTER',req.session.user)
+            res.redirect('/dashboard');
+          }
+          else{
+            res.status(404).json({message:'oops cant find you'});
+
+          }
+        }
+        else{
+          console.log('No user found')
+        }
+      }
+      // Todo use response to get user first name
       console.log('login query ',qres)
     }
     catch (e) {
       console.log('ERROR with query',e);
       res.redirect('/signup');
     }
-    console.log('req.session.user BEFORE',req.session.user)
-    req.session.user = { email_or_pn: req.body.email_or_pn};
-    console.log('req.session.user AFTER',req.session.user)
-
-
-    res.redirect('/dashboard');
   }catch(e) {
     console.log('ERROR123',e);
     next(e);
   }
+
 };
 
 const destroySession= async (req, res, next) => {
@@ -127,6 +168,7 @@ const deleteUser = (request, response) => {
 };
 
 module.exports = {
+  dbTest,
   getUsers,
   getUserById,
   createUser,

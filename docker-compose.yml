@@ -3,6 +3,18 @@ services:
 
   nextjs:
     build: ./
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: postgres
+      SESSION_SECRET: 523ea32asfd#@324ewfdsA
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DOMAIN: https://www.ex4123432432ample.com
+      APP_PORT: 3000
+
     depends_on:
       - postgres
       - redis
@@ -20,7 +32,8 @@ services:
     container_name: 'postgres'
     image: 'postgres'
     environment:
-      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - 5432:5432
     volumes:

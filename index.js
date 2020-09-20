@@ -25,7 +25,7 @@ const crypto = require("crypto");
 //
 var csrfProtection = csrf({ cookie: false });
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = false;//process.env.NODE_ENV === 'production';
 const origin = {
     origin: isProduction ? process.env.DOMAIN : '*',
 };
@@ -45,8 +45,6 @@ next_module.prepare().then(() => {
                 defaultSrc: ["'self'"],
                 scriptSrc: ["'self'","'unsafe-eval'", `'nonce-${res.locals.cspNonce}'`],
                 styleSrc: ["'self'","'unsafe-inline'"]//, `'nonce-${res.locals.cspNonceStyle}'`],
-
-
             },
         });
         cspMiddleware(res, res, next);
@@ -101,6 +99,7 @@ next_module.prepare().then(() => {
     app.post('/users', [requireNotLogin, csrfProtection], db.createUser);
 
     app.get('/allUsers', db.getUsers);
+    app.get('/dbTest', db.dbTest);
 
     app.get('/dashboard',[requireLogin,csrfProtection], function(req, res, next) {
         return next_module.render(req,res,'/dashboard', { csrfToken: req.csrfToken(), first_name: req.session.user.first_name });
