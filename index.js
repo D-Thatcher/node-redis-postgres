@@ -43,8 +43,10 @@ next_module.prepare().then(() => {
         const cspMiddleware = helmet.contentSecurityPolicy({
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc: ["'self'","'unsafe-eval'", `'nonce-${res.locals.cspNonce}'`],
-                styleSrc: ["'self'","'unsafe-inline'"]//, `'nonce-${res.locals.cspNonceStyle}'`],
+                imgSrc:["http://www.googletagmanager.com","https://www.googletagmanager.com","http://www.google-analytics.com","https://www.google-analytics.com"],
+                scriptSrc: ["'self'","http://www.google-analytics.com","https://www.google-analytics.com","http://www.googletagmanager.com","https://www.googletagmanager.com","'unsafe-eval'", "'unsafe-inline'"],//,`'nonce-${res.locals.cspNonce}'`],
+                styleSrc: ["'self'","'unsafe-inline'"],//, `'nonce-${res.locals.cspNonceStyle}'`],
+                connectSrc:["'self'","http://www.googletagmanager.com","https://www.googletagmanager.com","http://www.google-analytics.com","https://www.google-analytics.com"]
             },
         });
         cspMiddleware(res, res, next);
@@ -63,13 +65,7 @@ next_module.prepare().then(() => {
 
 
 
-    app.get('/a', (req, res) => {
-        return next_module.render(req, res, '/a', req.query)
-    })
 
-    app.get('/b', (req, res) => {
-        return next_module.render(req, res, '/b', req.query)
-    });
 
     app.get('/pricing', (req, res) => {
         console.log("PRICING")
@@ -80,7 +76,9 @@ next_module.prepare().then(() => {
         return next_module.render(req,res,'/signin', { csrfToken: req.csrfToken() });
     });
 
-    app.post('/signin', [requireNotLogin, csrfProtection] ,db.verifyUser);
+    app.post('/signin', [requireNotLogin, csrfProtection, db.verifyUser] , function(req, res, next) {
+        return next_module.render(req,res,'/signin', { csrfToken: req.csrfToken(), message:res.locals.message });
+    });
 
 
     app.get('/signup', [requireNotLogin, csrfProtection], function(req, res, next) {

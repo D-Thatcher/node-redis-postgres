@@ -100,12 +100,15 @@ const verifyUser= async (req, res, next) => {
             res.redirect('/dashboard');
           }
           else{
-            res.status(404).json({message:'oops cant find you'});
-
+            res.locals.message = 'Wrong username or password';
+            next()
+            //res.status(404).json({message:'Wrong username or password'});
           }
         }
         else{
-          console.log('No user found')
+          res.locals.message = 'Wrong username or password';
+          next()
+          //res.status(404).json({message:'Wrong username or password'});
         }
       }
       // Todo use response to get user first name

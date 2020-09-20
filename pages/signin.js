@@ -13,6 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Copyright from "../src/Copyright";
+import * as gtag from '../lib/gtag'
 
 
 
@@ -39,6 +40,16 @@ const useStyles = makeStyles((theme) => ({
 function SignIn(props) {
     const classes = useStyles();
 
+    function postSubmit(e) {
+        console.log('fired postSubmit')
+        gtag.event({
+            action: 'submit sign in',
+            category: 'Sign In',
+            label: (props.message)? props.message:"",
+        })
+
+    }
+
     return (
         <Container component="main" maxWidth="xs">
             <CssBaseline />
@@ -49,31 +60,68 @@ function SignIn(props) {
                 <Typography component="h1" variant="h5">
                     Sign in
                 </Typography>
-                <form className={classes.form} method="post" action="/signin" noValidate>
+                <form className={classes.form} method="post" action="/signin" noValidate onSubmit={postSubmit}>
                     <input type="hidden" name="_csrf" value={props.csrfToken}/>
 
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="email_or_pn"
-                        label="Email Address or Phone Number"
-                        name="email_or_pn"
-                        autoComplete="email"
-                        autoFocus
-                    />
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        autoComplete="current-password"
-                    />
+                    {props.message?
+
+                        <TextField
+                            error
+                            helperText={props.message}
+
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="email_or_pn"
+                            label="Email Address or Phone Number"
+                            name="email_or_pn"
+                            autoComplete="email"
+                            autoFocus
+                        />
+                        :
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="email_or_pn"
+                            label="Email Address or Phone Number"
+                            name="email_or_pn"
+                            autoComplete="email"
+                            autoFocus
+                        />
+                    }
+
+                    {props.message ?
+
+                        <TextField
+                            error
+                            helperText={props.message}
+
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                            autoComplete="current-password"
+                        />
+                        :
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                            autoComplete="current-password"
+                        />
+                    }
                     <FormControlLabel
                         control={<Checkbox value="remember" color="primary" />}
                         label="Remember me"
@@ -108,7 +156,8 @@ function SignIn(props) {
     );
 }
 
-SignIn.getInitialProps = async ({ query: { csrfToken } }) => {
-    return { csrfToken: csrfToken }
+SignIn.getInitialProps = async (rec) => {
+    console.log("rec",rec.query)
+    return { csrfToken: rec.query.csrfToken, message:rec.query.message }
 }
 export default SignIn;
